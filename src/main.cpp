@@ -2,6 +2,7 @@
 #include "WiFiMulti.h"
 #include "player.h"
 #include "playlist.hpp"
+#include "esp_wifi.h"
 
 const char *ssid = "TP-Link_8724";
 const char *password = "40950211";
@@ -19,11 +20,10 @@ boolean pressed = false;
 void setup()
 {
   Serial.begin(115200);
-
+  esp_wifi_set_ps(WIFI_PS_NONE);
   WiFi.mode(WIFI_STA);
 
   WiFi.begin(ssid, password);
-
 
   while (WiFi.status() != WL_CONNECTED)
   {
