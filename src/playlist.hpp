@@ -5,20 +5,24 @@
 
 #include <Arduino.h>
 #include <vector>
+#include <map>
 
 class Playlist
 {
     std::vector<String> songs;
+    std::map<String, String> playlistsMap;
     int currentSong;
 
-    String downloadIndex(const char *name);
+    String fetchPlaylistContent(String name);
     bool readPlayList(String content);
 
 public:
     Playlist();
-    bool loadPlaylist(const char *name);
+    void getPlaylists();
+    bool loadPlaylist(String name);
     void playNext();
     void stop();
+    void loopPlaylist();
 };
 
 extern Playlist playlist;

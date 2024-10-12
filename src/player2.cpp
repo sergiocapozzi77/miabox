@@ -4,9 +4,9 @@
 Audio audio2;
 
 // Digital I/O used
-#define I2S_DOUT 25
-#define I2S_BCLK 27
-#define I2S_LRC 26
+#define I2S_DOUT 6
+#define I2S_BCLK 5
+#define I2S_LRC 4
 
 void setupPlayer()
 {
@@ -19,11 +19,10 @@ void setupPlayer()
 
 void playStream(String url)
 {
-
     if (audio2.isRunning())
     {
         Serial.println("Stop player");
-        //  audio2.stopSong();
+        audio2.stopSong();
     }
 
     Serial.println("Open stream");
@@ -33,7 +32,13 @@ void playStream(String url)
 
 void stopSong()
 {
+    Serial.println("Stop song");
     audio2.stopSong();
+}
+
+bool isAudioRunning()
+{
+    return audio2.isRunning();
 }
 
 bool loopPlayer()
@@ -44,7 +49,7 @@ bool loopPlayer()
     }
     else
     {
-        //  Serial.println("finish");
+        return false;
     }
 
     return true;

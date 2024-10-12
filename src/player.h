@@ -7,5 +7,5 @@ void setupPlayer();
 bool loopPlayer();
 void playStream(String);
 void stopSong();
-
+bool isAudioRunning();
 #endif
