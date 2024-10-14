@@ -15,7 +15,7 @@ void RfId::setup()
         key.keyByte[i] = 0xFF;
     }
 
-    Serial.println(F("This code scan the MIFARE Classsic NUID."));
+    // Serial.println(F("This code scan the MIFARE Classsic NUID."));
     lastCheck = millis();
     jumpCheck = 2;
 }
@@ -28,31 +28,42 @@ String RfId::checkCard()
     }
 
     lastCheck = millis();
+    byte bufferATQA[2];
+    byte bufferSize = sizeof(bufferATQA);
+    // Serial.println("----- checking card -----");
+
+    MFRC522::StatusCode status = rfid.PICC_WakeupA(bufferATQA, &bufferSize);
+    // Serial.printf("status %f\n", status);
 
     // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
-    if (!rfid.PICC_IsNewCardPresent())
-    {
-        Serial.println("No new card present");
-    }
+    // if (!)
+    // {
+    //     //Serial.println("No new card present");
+    //     //  return "No";
+    // }
 
     // Verify if the NUID has been readed
     if (!rfid.PICC_ReadCardSerial())
     {
-        if (jumpCheck > 0)
-        {
-            Serial.println("Jump check");
-            jumpCheck--;
-        }
-        else
-        {
-            Serial.println("Read card serial error");
-            return "No";
-        }
+        // if (jumpCheck > 0)
+        // {
+        //     //Serial.println("Jump check");
+        //     jumpCheck--;
+        // }
+        // else
+        // {
+        nuidPICC[0] = 0;
+        nuidPICC[1] = 0;
+        nuidPICC[2] = 0;
+        nuidPICC[3] = 0;
+        // Serial.println("Read card serial error");
+        return "No";
+        // }
     }
 
-    Serial.print(F("PICC type: "));
+    // Serial.print(F("PICC type: "));
     MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
-    Serial.println(rfid.PICC_GetTypeName(piccType));
+    // Serial.println(rfid.PICC_GetTypeName(piccType));
     String code = "";
 
     // Check is the PICC of Classic MIFARE type
@@ -60,7 +71,7 @@ String RfId::checkCard()
         piccType != MFRC522::PICC_TYPE_MIFARE_1K &&
         piccType != MFRC522::PICC_TYPE_MIFARE_4K)
     {
-        Serial.println(F("Your tag is not of type MIFARE Classic."));
+        // Serial.println(F("Your tag is not of type MIFARE Classic."));
         return "No";
     }
 
@@ -69,7 +80,7 @@ String RfId::checkCard()
         rfid.uid.uidByte[2] != nuidPICC[2] ||
         rfid.uid.uidByte[3] != nuidPICC[3])
     {
-        Serial.println(F("A new card has been detected."));
+        // Serial.println(F("A new card has been detected."));
 
         // Store NUID into nuidPICC array
         for (byte i = 0; i < 4; i++)
@@ -77,8 +88,8 @@ String RfId::checkCard()
             nuidPICC[i] = rfid.uid.uidByte[i];
         }
 
-        Serial.println(F("The NUID tag is:"));
-        Serial.println();
+        // Serial.println(F("The NUID tag is:"));
+        // Serial.println();
 
         char buffer[5];
         for (byte i = 0; i < rfid.uid.size; i++)
@@ -90,10 +101,12 @@ String RfId::checkCard()
         code.toUpperCase();
         jumpCheck = 2;
 
-        Serial.println(code);
+        // Serial.println(code);
     }
     else
     {
+        rfid.PICC_HaltA();
+        // Serial.println(F("Same card detected"));
         return "Same";
     }
 

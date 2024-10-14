@@ -9,9 +9,11 @@
 
 class Playlist
 {
+    bool isPlaying;
     std::vector<String> songs;
     std::map<String, String> playlistsMap;
     int currentSong;
+    unsigned int lastPosition;
 
     String fetchPlaylistContent(String name);
     bool readPlayList(String content);
@@ -19,8 +21,10 @@ class Playlist
 public:
     Playlist();
     void getPlaylists();
+    void resetPosition();
     bool loadPlaylist(String name);
     void playNext();
+    void play();
     void stop();
     void loopPlaylist();
 };

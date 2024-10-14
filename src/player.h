@@ -8,4 +8,6 @@ bool loopPlayer();
 void playStream(String);
 void stopSong();
 bool isAudioRunning();
+unsigned int getLastPosition();
+void setPosition(unsigned int pos);
 #endif

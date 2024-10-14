@@ -80,20 +80,31 @@ void loop()
     pressed = false;
   }
 
-  currentCard = rfid.checkCard();
-  if (currentCard == "Same")
+  String card = rfid.checkCard();
+  if (card == "Same")
   {
     // don't do anything
+    // Serial.println("Samecard do nothing");
   }
-  else if (currentCard == "No")
+  else if (card == "No")
   {
-    Serial.println("Current card is No");
+    Serial.println("Current card is No, stopping");
     playlist.stop();
   }
   else
   {
-    Serial.printf("Card is %s\n", currentCard);
-    playlist.loadPlaylist(currentCard);
-    playlist.playNext();
+    if (card != currentCard)
+    {
+      Serial.printf("New card found: is %s\n", card);
+      playlist.resetPosition();
+    }
+    else
+    {
+      Serial.printf("Same courd found: is %s\n", card);
+    }
+
+    currentCard = card;
+    playlist.loadPlaylist(card);
+    playlist.play();
   }
 }

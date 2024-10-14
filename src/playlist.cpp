@@ -11,6 +11,7 @@ Playlist playlist;
 Playlist::Playlist()
 {
     currentSong = 1;
+    isPlaying = false;
 }
 
 void Playlist::getPlaylists()
@@ -62,12 +63,27 @@ void Playlist::getPlaylists()
 
 void Playlist::stop()
 {
-    Serial.println("Stop playlist");
+    isPlaying = false;
+    lastPosition = getLastPosition();
+    Serial.printf("Stop playlist at position %d\n", lastPosition);
     stopSong();
+}
+
+void Playlist::resetPosition()
+{
+    currentSong = 1;
+    lastPosition = 0;
 }
 
 void Playlist::playNext()
 {
+    play();
+    currentSong++;
+}
+
+void Playlist::play()
+{
+
     if (currentSong >= songs.size())
     {
         if (isAudioRunning())
@@ -77,13 +93,18 @@ void Playlist::playNext()
         }
         return;
     }
+    isPlaying = true;
 
     Serial.println("Play next");
     char url[200];
     sprintf(url, REST_API, "stream", (String("&format=mp3&id=") + songs.at(currentSong)).c_str());
     Serial.printf("Playing %s\n", url);
-    currentSong++;
     playStream(url);
+    // if (lastPosition > 0)
+    // {
+    //     Serial.printf("Set position to %d\n", lastPosition);
+    //     setPosition(lastPosition);
+    // }
 }
 
 bool Playlist::loadPlaylist(String cardCode)
@@ -117,7 +138,10 @@ void Playlist::loopPlaylist()
 {
     if (!loopPlayer())
     {
-        this->playNext();
+        if (isPlaying)
+        {
+            this->playNext();
+        }
     }
 }
 
