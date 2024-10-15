@@ -2,8 +2,9 @@
 
 #include "AudioTools.h"
 #include "AudioTools/AudioCodecs/CodecMP3Helix.h"
+#include "AudioTools/AudioCodecs/CodecMP3MAD.h"
 
-URLStream url;
+URLStream url(50000);
 I2SStream out;                                       // Final output of decoded stream.
 EncodedAudioStream dec(&out, new MP3DecoderHelix()); // Decoding stream
 StreamCopy copier(dec, url);                         // copy url to decoder
@@ -16,11 +17,12 @@ StreamCopy copier(dec, url);                         // copy url to decoder
 
 void setupPlayer()
 {
-    AudioLogger::instance().begin(Serial, AudioLogger::Info);
+    //    AudioLogger::instance().begin(Serial, AudioLogger::Info);
     auto config = out.defaultConfig(TX_MODE);
     config.pin_bck = I2S_BCLK;
     config.pin_ws = I2S_LRC;
     config.pin_data = I2S_DOUT;
+    config.i2s_format = I2S_STD_FORMAT;
     // config.i2s_format = I2S_LSB_FORMAT;
 
     // config.pin_mck = 0; // optional master clock pin
@@ -32,6 +34,7 @@ void setupPlayer()
     // setup I2S based on sampling rate provided by decoder
     dec.begin();
 
+    //  copier.begin();
     // refreshDirContent2();
 }
 
@@ -61,7 +64,7 @@ void setPosition(unsigned int pos)
 void stopSong()
 {
     Serial.println("Stop song");
-    copier.end();
+    // copier.end();
 }
 
 bool isAudioRunning()
