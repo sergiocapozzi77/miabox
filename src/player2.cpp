@@ -1,7 +1,13 @@
 #include "player.h"
-#include "Audio.h"
 
-Audio audio2;
+#include "AudioTools.h"
+#include "AudioTools/AudioCodecs/CodecMP3Helix.h"
+
+URLStream url;
+I2SStream out;                                       // Final output of decoded stream.
+EncodedAudioStream dec(&out, new MP3DecoderHelix()); // Decoding stream
+StreamCopy copier(dec, url);                         // copy url to decoder
+// AudioPlayer player(url, out, dec);
 
 // Digital I/O used
 #define I2S_DOUT 6
@@ -10,104 +16,62 @@ Audio audio2;
 
 void setupPlayer()
 {
-    //  randomSeed(2343);
-    audio2.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
-    audio2.setVolume(21);
+    AudioLogger::instance().begin(Serial, AudioLogger::Info);
+    auto config = out.defaultConfig(TX_MODE);
+    config.pin_bck = I2S_BCLK;
+    config.pin_ws = I2S_LRC;
+    config.pin_data = I2S_DOUT;
+    // config.i2s_format = I2S_LSB_FORMAT;
+
+    // config.pin_mck = 0; // optional master clock pin
+    // config.i2s_format = I2S_STD_FORMAT; // default format
+    // config.is_master = true; // default esp32 is master
+
+    out.begin(config);
+
+    // setup I2S based on sampling rate provided by decoder
+    dec.begin();
 
     // refreshDirContent2();
 }
 
-void playStream(String url)
+void playStream(String urlToplay)
 {
-    if (audio2.isRunning())
-    {
-        Serial.println("Stop player");
-        audio2.stopSong();
-    }
+    // if (out.isActive())
+    // {
+    //     Serial.println("Stop player");
+    //     audio2.stopSong();
+    // }
 
     Serial.println("Open stream");
-    Serial.println(url.c_str());
-    audio2.connecttohost(url.c_str(), 0, "sergio", "sergio"); //  128k
+    Serial.println(urlToplay.c_str());
+    url.begin(urlToplay.c_str(), "audio/mp3");
+    // ur.connecttohost(url.c_str(), 0, "sergio", "sergio"); //  128k
 }
 
 unsigned int getLastPosition()
 {
-    return audio2.getAudioCurrentTime();
+    return 0;
 }
 
 void setPosition(unsigned int pos)
 {
-    audio2.setTimeOffset(pos);
 }
 
 void stopSong()
 {
     Serial.println("Stop song");
-    audio2.stopSong();
+    copier.end();
 }
 
 bool isAudioRunning()
 {
-    return audio2.isRunning();
+    return true;
 }
 
 bool loopPlayer()
 {
-    if (audio2.isRunning())
-    {
-        audio2.loop();
-    }
-    else
-    {
-        return false;
-    }
+    copier.copy();
 
     return true;
-}
-
-// optional
-void audio_info(const char *info)
-{
-    Serial.print("info        ");
-    Serial.println(info);
-}
-void audio_id3data(const char *info)
-{ // id3 metadata
-    Serial.print("id3data     ");
-    Serial.println(info);
-}
-void audio_eof_mp3(const char *info)
-{ // end of file
-    Serial.print("eof_mp3     ");
-    Serial.println(info);
-}
-void audio_showstation(const char *info)
-{
-    Serial.print("station     ");
-    Serial.println(info);
-}
-void audio_showstreamtitle(const char *info)
-{
-    Serial.print("streamtitle ");
-    Serial.println(info);
-}
-void audio_bitrate(const char *info)
-{
-    Serial.print("bitrate     ");
-    Serial.println(info);
-}
-void audio_commercial(const char *info)
-{ // duration in sec
-    Serial.print("commercial  ");
-    Serial.println(info);
-}
-void audio_icyurl(const char *info)
-{ // homepage
-    Serial.print("icyurl      ");
-    Serial.println(info);
-}
-void audio_lasthost(const char *info)
-{ // stream URL played
-    Serial.print("lasthost    ");
-    Serial.println(info);
 }
