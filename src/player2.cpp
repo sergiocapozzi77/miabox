@@ -27,7 +27,7 @@ void playStream(String url)
 
     Serial.println("Open stream");
     Serial.println(url.c_str());
-    audio2.connecttohost(url.c_str(), 2894361, "sergio", "sergio"); //  128k
+    audio2.connecttohost(url.c_str(), 0, "sergio", "sergio"); //  128k
 }
 
 unsigned int getLastPosition()
