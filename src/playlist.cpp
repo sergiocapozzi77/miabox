@@ -2,6 +2,7 @@
 #include <ArduinoJson.h>
 #include "player.h"
 #include "downloader.h"
+#include "ledmanager.hpp"
 
 Playlist playlist;
 
@@ -10,12 +11,14 @@ Playlist playlist;
 
 Playlist::Playlist()
 {
-    currentSong = 1;
+    currentSong = 0;
     isPlaying = false;
 }
 
 void Playlist::getPlaylists()
 {
+    ledManager.bluOn();
+
     char url[100];
     sprintf(url, REST_API, "getPlaylists", "");
     String playlists = fetchData(url);
@@ -57,12 +60,13 @@ void Playlist::getPlaylists()
     }
 
     Serial.printf("Loaded %d playlists\n", playlistsMap.size());
-
+    ledManager.bluOff();
     return;
 }
 
 void Playlist::stop()
 {
+    ledManager.greenOff();
     isPlaying = false;
     lastPosition = getLastPosition();
     Serial.printf("Stop playlist at position %d\n", lastPosition);
@@ -71,7 +75,7 @@ void Playlist::stop()
 
 void Playlist::resetPosition()
 {
-    currentSong = 1;
+    currentSong = 0;
     lastPosition = 0;
 }
 
@@ -83,7 +87,7 @@ void Playlist::playNext()
 
 void Playlist::play()
 {
-
+    ledManager.greenOn();
     if (currentSong >= songs.size())
     {
         if (isAudioRunning())
@@ -97,7 +101,7 @@ void Playlist::play()
 
     Serial.println("Play next");
     char url[200];
-    sprintf(url, REST_API, "stream", (String("&format=mp3&id=") + songs.at(currentSong)).c_str());
+    sprintf(url, REST_API, "stream", (String("&format=raw&id=") + songs.at(currentSong)).c_str());
     Serial.printf("Playing %s\n", url);
     playStream(url);
     // if (lastPosition > 0)

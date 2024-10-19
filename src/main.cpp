@@ -4,19 +4,29 @@
 #include "playlist.hpp"
 #include "esp_wifi.h"
 #include "rfid.hpp"
+#include "buttonmanager.hpp"
+#include "ledmanager.hpp"
 
 const char *ssid = "TP-Link_8724";
 const char *password = "40950211";
 
-#define BUTTON1_PIN 12 // The ESP32 pin GPIO21 connected to the button
-#define BUTTON2_PIN 14 // The ESP32 pin GPIO21 connected to the button
-void IRAM_ATTR handleButton1Press();
-void IRAM_ATTR handleButton2Press();
+#define BUTTON1_PIN 12
+#define BUTTON2_PIN 14
+#define BUTTON_VOLUMEUP_PIN 1
+#define BUTTON_VOLUMEDOWN_PIN 2
+
+ButtonManager buttonNext(BUTTON1_PIN, "Next");
+ButtonManager buttonStop(BUTTON2_PIN, "Stop");
+ButtonManager buttonVolUp(BUTTON_VOLUMEUP_PIN, "Volume Up");
+ButtonManager buttonVolDown(BUTTON_VOLUMEDOWN_PIN, "Volume Down");
 
 boolean pressed = false;
 String currentCard = "";
 
 RfId rfid;
+
+void playlistStop();
+void playlistNext();
 
 void setup()
 {
@@ -31,37 +41,37 @@ void setup()
     delay(500);
     Serial.print(".");
   }
-  // esp_sleep_enable_timer_wakeup(uS_TO_S_FACTOR * TIME_TO_SLEEP);
+
+  ledManager.setup();
+
   Serial.println("wifi connected");
 
   Serial.println("Setup player");
   setupPlayer();
   Serial.println("Setup rfid");
   rfid.setup();
-
   // Initialize the GPIO pin as an input
   pinMode(BUTTON1_PIN, INPUT_PULLUP);
   pinMode(BUTTON2_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_VOLUMEUP_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_VOLUMEDOWN_PIN, INPUT_PULLUP);
 
-  // // Attach interrupt to the GPIO pin
-  // attachInterrupt(digitalPinToInterrupt(BUTTON1_PIN), handleButton1Press, RISING);
-  // attachInterrupt(digitalPinToInterrupt(BUTTON2_PIN), handleButton2Press, RISING);
-
-  // playlist.loadPlaylist("1");
+  buttonStop.attachAction(playlistStop);
+  buttonNext.attachAction(playlistNext);
+  buttonVolDown.attachAction(volumeDown);
+  buttonVolUp.attachAction(volumeUp);
 
   // playlist.playNext();
   playlist.getPlaylists();
 }
 
-void IRAM_ATTR handleButton1Press()
+void playlistStop()
 {
-  Serial.println("Button 1 pressed");
   playlist.stop();
 }
 
-void IRAM_ATTR handleButton2Press()
+void playlistNext()
 {
-  Serial.println("Button 2 pressed");
   playlist.playNext();
 }
 
@@ -69,16 +79,10 @@ void loop()
 {
   playlist.loopPlaylist();
 
-  if (!pressed && digitalRead(BUTTON1_PIN) == LOW)
-  {
-    pressed = true;
-  }
-
-  if (pressed && digitalRead(BUTTON1_PIN) == HIGH)
-  {
-    playlist.playNext();
-    pressed = false;
-  }
+  buttonStop.eval();
+  buttonNext.eval();
+  buttonVolUp.eval();
+  buttonVolDown.eval();
 
   String card = rfid.checkCard();
   if (card == "Same")
@@ -88,8 +92,11 @@ void loop()
   }
   else if (card == "No")
   {
-    Serial.println("Current card is No, stopping");
-    playlist.stop();
+    if (playlist.isPlaying)
+    {
+      Serial.println("Current card is No, stopping");
+      playlist.stop();
+    }
   }
   else
   {

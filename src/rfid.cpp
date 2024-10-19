@@ -1,14 +1,14 @@
 
 #include "rfid.hpp"
 
-RfId::RfId() : rfid(SS_PIN, RST_PIN)
+RfId::RfId() : rfid(RF_SS_PIN, RF_RST_PIN)
 {
 }
 
 void RfId::setup()
 {
-    SPI.begin(SCK, MISO, MOSI, SS); // Init SPI bus
-    rfid.PCD_Init();                // Init MFRC522
+    SPI.begin(RF_SCK, RF_MISO, RF_MOSI, RF_SS); // Init SPI bus
+    rfid.PCD_Init();                            // Init MFRC522
 
     for (byte i = 0; i < 6; i++)
     {
@@ -33,7 +33,7 @@ String RfId::checkCard()
     // Serial.println("----- checking card -----");
 
     MFRC522::StatusCode status = rfid.PICC_WakeupA(bufferATQA, &bufferSize);
-    // Serial.printf("status %f\n", status);
+    //  Serial.printf("status %f\n", status);
 
     // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
     // if (!)
@@ -56,7 +56,7 @@ String RfId::checkCard()
         nuidPICC[1] = 0;
         nuidPICC[2] = 0;
         nuidPICC[3] = 0;
-        // Serial.println("Read card serial error");
+        //  Serial.println("Read card serial error");
         return "No";
         // }
     }
