@@ -7,13 +7,13 @@
 #include <SPI.h>
 #include <MFRC522.h>
 
-#define SS_PIN 7
-#define RST_PIN 0
+#define RF_SS_PIN 7
+#define RF_RST_PIN 0
 
-#define SCK 18
-#define MISO 16
-#define MOSI 17
-#define SS 7
+#define RF_SCK 18
+#define RF_MISO 16
+#define RF_MOSI 17
+#define RF_SS 7
 
 class RfId
 {

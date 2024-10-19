@@ -1,5 +1,6 @@
 #include "player.h"
 #include "Audio.h"
+#include "ledmanager.hpp"
 
 Audio audio2;
 
@@ -27,7 +28,8 @@ void playStream(String url)
 
     Serial.println("Open stream");
     Serial.println(url.c_str());
-    audio2.connecttohost(url.c_str(), 0, "sergio", "sergio"); //  128k
+    ledManager.bluOn();
+    audio2.connecttohost(url.c_str(), "sergio", "sergio"); //  128k
 }
 
 unsigned int getLastPosition()
@@ -38,6 +40,18 @@ unsigned int getLastPosition()
 void setPosition(unsigned int pos)
 {
     audio2.setTimeOffset(pos);
+}
+
+void volumeUp()
+{
+    Serial.println("Volume Up");
+    audio2.setVolume(audio2.getVolume() + 1);
+}
+
+void volumeDown()
+{
+    Serial.println("Volume Down");
+    audio2.setVolume(audio2.getVolume() - 1);
 }
 
 void stopSong()
@@ -68,12 +82,16 @@ bool loopPlayer()
 // optional
 void audio_info(const char *info)
 {
-    Serial.print("info        ");
+    Serial.printf("%d: info        ", millis());
     Serial.println(info);
+    if (String(info).startsWith("BitRate"))
+    {
+        ledManager.bluOff();
+    }
 }
 void audio_id3data(const char *info)
 { // id3 metadata
-    Serial.print("id3data     ");
+    Serial.printf("%d: id3data     ", millis());
     Serial.println(info);
 }
 void audio_eof_mp3(const char *info)
@@ -93,6 +111,7 @@ void audio_showstreamtitle(const char *info)
 }
 void audio_bitrate(const char *info)
 {
+    ledManager.bluOff();
     Serial.print("bitrate     ");
     Serial.println(info);
 }

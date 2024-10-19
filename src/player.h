@@ -10,4 +10,6 @@ void stopSong();
 bool isAudioRunning();
 unsigned int getLastPosition();
 void setPosition(unsigned int pos);
+void volumeUp();
+void volumeDown();
 #endif
