@@ -1,6 +1,7 @@
 #include "downloader.h"
 #include <Arduino.h>
 #include <HTTPClient.h>
+#include <SD.h>
 
 #define MAX_HTTP_RECV_BUFFER 2048
 
@@ -67,4 +68,69 @@ String fetchData(const char *link)
 
     Serial.println("Returning string");
     return ret;
+}
+
+void downloadFileTask(void *parameter)
+{
+    DownloadParams *params = (DownloadParams *)parameter;
+
+    if (WiFi.status() == WL_CONNECTED)
+    {
+        HTTPClient http;
+
+        http.begin(params->url);
+        int httpCode = http.GET();
+
+        if (httpCode > 0)
+        {
+            if (httpCode == HTTP_CODE_OK)
+            {
+                File file = SD.open(params->filename, FILE_WRITE);
+                if (!file)
+                {
+                    Serial.println("Failed to open file for writing");
+                    vTaskDelete(NULL); // End this task
+                    delete params;     // Clean up allocated memory
+                    return;
+                }
+
+                // Read data in chunks
+                const size_t bufferSize = 512; // Adjust chunk size if needed
+                uint8_t buffer[bufferSize];
+                int len = http.getSize();
+                WiFiClient *stream = http.getStreamPtr();
+
+                while (http.connected() && (len > 0 || len == -1))
+                {
+                    // Read data in chunks
+                    size_t bytesRead = stream->readBytes(buffer, sizeof(buffer));
+                    file.write(buffer, bytesRead);
+
+                    if (len > 0)
+                    {
+                        len -= bytesRead;
+                    }
+                }
+                file.close();
+                Serial.println("File downloaded and saved to SD card.");
+            }
+            else
+            {
+                Serial.printf("Error: %s\n", http.errorToString(httpCode).c_str());
+            }
+        }
+        else
+        {
+            Serial.printf("Unable to connect: %s\n", http.errorToString(httpCode).c_str());
+        }
+
+        http.end(); // Close connection
+    }
+    else
+    {
+        Serial.println("WiFi not connected");
+    }
+
+    delete params;     // Clean up allocated memory
+    vTaskDelete(NULL); // End this task when done
 }

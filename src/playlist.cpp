@@ -2,11 +2,11 @@
 #include <ArduinoJson.h>
 #include "player.h"
 #include "downloader.h"
+#include "common.h"
 
 Playlist playlist;
 
 // #define REST_API "http://192.168.0.141:4040/rest/%s?u=admin&p=admin&v=1.12.0&c=myapp&f=json%s"
-#define REST_API "http://192.168.0.237:4040/rest/%s?u=sergio&p=sergio&v=1.12.0&c=myapp&f=json%s"
 
 Playlist::Playlist()
 {
@@ -71,7 +71,7 @@ void Playlist::stop()
 
 void Playlist::resetPosition()
 {
-    currentSong = 1;
+    currentSong = 0;
     lastPosition = 0;
 }
 

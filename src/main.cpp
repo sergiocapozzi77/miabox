@@ -4,6 +4,7 @@
 #include "playlist.hpp"
 #include "esp_wifi.h"
 #include "rfid.hpp"
+#include "fsHelper.h"
 
 const char *ssid = "TP-Link_8724";
 const char *password = "40950211";
@@ -31,8 +32,18 @@ void setup()
     delay(500);
     Serial.print(".");
   }
-  // esp_sleep_enable_timer_wakeup(uS_TO_S_FACTOR * TIME_TO_SLEEP);
   Serial.println("wifi connected");
+
+  if (!SDSetup())
+  {
+    Serial.println("Error in SDSetup");
+  }
+  else
+  {
+    listDir(SD, "/", 0);
+  }
+
+  // esp_sleep_enable_timer_wakeup(uS_TO_S_FACTOR * TIME_TO_SLEEP);
 
   Serial.println("Setup player");
   setupPlayer();
@@ -97,14 +108,17 @@ void loop()
     {
       Serial.printf("New card found: is %s\n", card);
       playlist.resetPosition();
+      createFolder(SD, ("/" + card).c_str());
+      Serial.printf("Created folder %s\n", "/" + card);
+      listDir(SD, ("/" + card).c_str(), 0);
     }
     else
     {
-      Serial.printf("Same courd found: is %s\n", card);
+      Serial.printf("Same card found: is %s\n", card);
     }
 
     currentCard = card;
     playlist.loadPlaylist(card);
-    playlist.play();
+    playlist.playNext();
   }
 }
