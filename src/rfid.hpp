@@ -4,11 +4,12 @@
 
 #include <Arduino.h>
 
-#include <SPI.h>
-#include <MFRC522.h>
+#include <PN5180.h>
+#include <PN5180ISO15693.h>
 
 #define RF_SS_PIN 7
-#define RF_RST_PIN 0
+#define RF_RST_PIN 15
+#define RF_BUSY_PIN 8
 
 #define RF_SCK 18
 #define RF_MISO 16
@@ -19,12 +20,7 @@ class RfId
 {
     int jumpCheck;
     unsigned long lastCheck;
-    MFRC522 rfid; // Instance of the class
-
-    MFRC522::MIFARE_Key key;
-
-    // Init array that will store new NUID
-    byte nuidPICC[4];
+    PN5180ISO15693 nfc;
 
 public:
     RfId();
