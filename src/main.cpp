@@ -11,13 +11,13 @@
 const char *ssid = "TP-Link_8724";
 const char *password = "40950211";
 
-#define BUTTON1_PIN 9
-#define BUTTON2_PIN 46
+#define BUTTON_NEXTSONG_PIN 38
+#define BUTTON_STOPSONG_PIN 39
 #define BUTTON_VOLUMEUP_PIN 1
 #define BUTTON_VOLUMEDOWN_PIN 2
 
-ButtonManager buttonNext(BUTTON1_PIN, "Next");
-ButtonManager buttonStop(BUTTON2_PIN, "Stop");
+ButtonManager buttonNext(BUTTON_NEXTSONG_PIN, "Next");
+ButtonManager buttonStop(BUTTON_STOPSONG_PIN, "Stop");
 ButtonManager buttonVolUp(BUTTON_VOLUMEUP_PIN, "Volume Up");
 ButtonManager buttonVolDown(BUTTON_VOLUMEDOWN_PIN, "Volume Down");
 
@@ -42,31 +42,29 @@ void setup()
     delay(500);
     Serial.print(".");
   }
-
-  // ledManager.setup();
-
   Serial.println("wifi connected");
 
-  if (!SDSetup())
-  {
-    Serial.println("Unable to read SD");
-    delay(3000);
-    ESP.restart();
-  }
-  else
-  {
-    // listDir(SD, "/", 0);
-  }
+  ledManager.setup();
 
-  // esp_sleep_enable_timer_wakeup(uS_TO_S_FACTOR * TIME_TO_SLEEP);
+  // if (!SDSetup())
+  // {
+  //   Serial.println("Unable to read SD");
+  //   delay(3000);
+  //   ESP.restart();
+  // }
+  // else
+  // {
+  //   listDir(SD, "/", 0);
+  // }
 
   Serial.println("Setup player");
   setupPlayer();
   Serial.println("Setup rfid");
   rfid.setup();
+
   // Initialize the GPIO pin as an input
-  pinMode(BUTTON1_PIN, INPUT_PULLUP);
-  pinMode(BUTTON2_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_NEXTSONG_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_STOPSONG_PIN, INPUT_PULLUP);
   pinMode(BUTTON_VOLUMEUP_PIN, INPUT_PULLUP);
   pinMode(BUTTON_VOLUMEDOWN_PIN, INPUT_PULLUP);
 
@@ -75,7 +73,6 @@ void setup()
   buttonVolDown.attachAction(volumeDown);
   buttonVolUp.attachAction(volumeUp);
 
-  // playlist.playNext();
   playlist.getPlaylists();
 }
 

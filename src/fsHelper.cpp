@@ -2,60 +2,61 @@
 
 #include "SPI.h"
 #include "SD.h"
-
+#include "FS.h"
 // #include "SdFat.h"
 
 // SdFat sd;
 
-#define SD_CS_PIN -1 // 15  // or 5
-
-// These pins will be use for SPI2
-#define SD_CLK_PIN 12
-#define SD_MOSI_PIN 11
-#define SD_MISO_PIN 13
-
-// Sd2Card card;
+// Define CS pin for the SD card module
+#define SD_MISO 13
+#define SD_MOSI 11
+#define SD_SCLK 12
+#define SD_CS 10
+SPIClass sdSPI(HSPI);
 
 bool SDSetup()
 {
     // pinMode(SD_CS_PIN, OUTPUT);
     // SdSpiConfig cfg(SD_CS_PIN, )
-    // SPI.begin(SD_CLK_PIN, SD_MISO_PIN, SD_MOSI_PIN, SD_CS_PIN);
-
-    if (!SD.begin())
-    //  if (!SD.begin())
+    // SPIClass SPI2(HSPI);
+    // SPI2.begin(SD_CLK_PIN, SD_MISO_PIN, SD_MOSI_PIN, SD_CS_PIN);
+    Serial.println("Attempt");
+    SPI.begin(SD_SCLK, SD_MISO, SD_MOSI, SD_CS);
+    if (!SD.begin(SD_CS))
     {
         Serial.println("Card Mount Failed");
         return false;
     }
-    // uint8_t cardType = SD.cardType();
 
-    // if (cardType == CARD_NONE)
-    // {
-    //     Serial.println("No SD card attached");
-    //     return false;
-    // }
+    Serial.println("Card Mount OK");
+    uint8_t cardType = SD.cardType();
 
-    // Serial.print("SD Card Type: ");
-    // if (cardType == CARD_MMC)
-    // {
-    //     Serial.println("MMC");
-    // }
-    // else if (cardType == CARD_SD)
-    // {
-    //     Serial.println("SDSC");
-    // }
-    // else if (cardType == CARD_SDHC)
-    // {
-    //     Serial.println("SDHC");
-    // }
-    // else
-    // {
-    //     Serial.println("UNKNOWN");
-    // }
+    if (cardType == CARD_NONE)
+    {
+        Serial.println("No SD card attached");
+        return false;
+    }
 
-    // uint64_t cardSize = SD.cardSize() / (1024 * 1024);
-    // Serial.printf("SD Card Size: %lluMB\n", cardSize);
+    Serial.print("SD Card Type: ");
+    if (cardType == CARD_MMC)
+    {
+        Serial.println("MMC");
+    }
+    else if (cardType == CARD_SD)
+    {
+        Serial.println("SDSC");
+    }
+    else if (cardType == CARD_SDHC)
+    {
+        Serial.println("SDHC");
+    }
+    else
+    {
+        Serial.println("UNKNOWN");
+    }
+
+    uint64_t cardSize = SD.cardSize() / (1024 * 1024);
+    Serial.printf("SD Card Size: %lluMB\n", cardSize);
 
     // if (!SD.exists("/mp3"))
     // {

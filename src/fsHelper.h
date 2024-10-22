@@ -1,9 +1,7 @@
 #ifndef FSHELPER_H
 #define FSHELPER_H
 
-#include "FS.h"
 #include <Arduino.h>
-#include <ArduinoJson.h>
 
 bool SDSetup();
 // void listDir(fs::FS &fs, const char *dirname, uint8_t levels);

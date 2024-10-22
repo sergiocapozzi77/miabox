@@ -1,8 +1,8 @@
 #include "ledmanager.hpp"
 
-#define GREEN_LED_PIN 11
-#define RED_LED_PIN 10
-#define BLU_LED_PIN 13
+#define GREEN_LED_PIN 41
+#define RED_LED_PIN 42
+#define BLU_LED_PIN 40
 
 LedManager ledManager;
 
