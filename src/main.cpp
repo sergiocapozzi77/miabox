@@ -11,8 +11,8 @@
 const char *ssid = "TP-Link_8724";
 const char *password = "40950211";
 
-#define BUTTON1_PIN 12
-#define BUTTON2_PIN 14
+#define BUTTON1_PIN 9
+#define BUTTON2_PIN 46
 #define BUTTON_VOLUMEUP_PIN 1
 #define BUTTON_VOLUMEDOWN_PIN 2
 
@@ -43,17 +43,19 @@ void setup()
     Serial.print(".");
   }
 
-  ledManager.setup();
+  // ledManager.setup();
 
   Serial.println("wifi connected");
 
   if (!SDSetup())
   {
-    Serial.println("Error in SDSetup");
+    Serial.println("Unable to read SD");
+    delay(3000);
+    ESP.restart();
   }
   else
   {
-    listDir(SD, "/", 0);
+    // listDir(SD, "/", 0);
   }
 
   // esp_sleep_enable_timer_wakeup(uS_TO_S_FACTOR * TIME_TO_SLEEP);
@@ -116,9 +118,9 @@ void loop()
     {
       Serial.printf("New card found: is %s\n", card);
       playlist.resetPosition();
-      createFolder(SD, ("/" + card).c_str());
-      Serial.printf("Created folder %s\n", "/" + card);
-      listDir(SD, ("/" + card).c_str(), 0);
+      // createFolder(SD, ("/" + card).c_str());
+      // Serial.printf("Created folder %s\n", "/" + card);
+      // listDir(SD, ("/" + card).c_str(), 0);
     }
     else
     {

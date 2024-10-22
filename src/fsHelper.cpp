@@ -1,64 +1,72 @@
 #include "fsHelper.h"
 
+#include "SPI.h"
 #include "SD.h"
-File indexFile;
 
-#define SD_CS_PIN 19 // 15  // or 5
+// #include "SdFat.h"
+
+// SdFat sd;
+
+#define SD_CS_PIN -1 // 15  // or 5
 
 // These pins will be use for SPI2
-#define SD_CLK_PIN 20
-#define SD_MOSI_PIN 21
-#define SD_MISO_PIN 47
+#define SD_CLK_PIN 12
+#define SD_MOSI_PIN 11
+#define SD_MISO_PIN 13
+
+// Sd2Card card;
 
 bool SDSetup()
 {
-    SPIClass SPI2(HSPI);
-    SPI2.begin(SD_CLK_PIN, SD_MISO_PIN, SD_MOSI_PIN, SD_CS_PIN);
+    // pinMode(SD_CS_PIN, OUTPUT);
+    // SdSpiConfig cfg(SD_CS_PIN, )
+    // SPI.begin(SD_CLK_PIN, SD_MISO_PIN, SD_MOSI_PIN, SD_CS_PIN);
 
-    if (!SD.begin(SD_CS_PIN, SPI2))
+    if (!SD.begin())
+    //  if (!SD.begin())
     {
         Serial.println("Card Mount Failed");
         return false;
     }
+    // uint8_t cardType = SD.cardType();
 
-    uint8_t cardType = SD.cardType();
+    // if (cardType == CARD_NONE)
+    // {
+    //     Serial.println("No SD card attached");
+    //     return false;
+    // }
 
-    if (cardType == CARD_NONE)
-    {
-        Serial.println("No SD card attached");
-        return false;
-    }
+    // Serial.print("SD Card Type: ");
+    // if (cardType == CARD_MMC)
+    // {
+    //     Serial.println("MMC");
+    // }
+    // else if (cardType == CARD_SD)
+    // {
+    //     Serial.println("SDSC");
+    // }
+    // else if (cardType == CARD_SDHC)
+    // {
+    //     Serial.println("SDHC");
+    // }
+    // else
+    // {
+    //     Serial.println("UNKNOWN");
+    // }
 
-    Serial.print("SD Card Type: ");
-    if (cardType == CARD_MMC)
-    {
-        Serial.println("MMC");
-    }
-    else if (cardType == CARD_SD)
-    {
-        Serial.println("SDSC");
-    }
-    else if (cardType == CARD_SDHC)
-    {
-        Serial.println("SDHC");
-    }
-    else
-    {
-        Serial.println("UNKNOWN");
-    }
+    // uint64_t cardSize = SD.cardSize() / (1024 * 1024);
+    // Serial.printf("SD Card Size: %lluMB\n", cardSize);
 
-    uint64_t cardSize = SD.cardSize() / (1024 * 1024);
-    Serial.printf("SD Card Size: %lluMB\n", cardSize);
-
-    if (!SD.exists("/mp3"))
-    {
-        SD.mkdir("/mp3");
-        Serial.println("Created mp3 folder");
-    }
+    // if (!SD.exists("/mp3"))
+    // {
+    //     SD.mkdir("/mp3");
+    //     Serial.println("Created mp3 folder");
+    // }
 
     return true;
 }
 
+/*
 bool deleteIfExists(fs::FS &fs, const char *path)
 {
     Serial.printf("deleting: %s\r\n", path);
@@ -85,7 +93,7 @@ String getExtension(String fileName)
 {
     return fileName.substring(fileName.lastIndexOf('.'));
 }
-
+/*
 void getDirContent(fs::FS &fs, const char *dirname, int &count, String *files)
 {
     count = 0;
@@ -129,32 +137,7 @@ void listDir(fs::FS &fs, const char *dirname, uint8_t levels)
         Serial.print("  FILE: ");
         Serial.println(files[i]);
     }
-    /*  File root = fs.open(dirname);
-      if(!root){
-          Serial.println("- failed to open directory");
-          return;
-      }
-      if(!root.isDirectory()){
-          Serial.println(" - not a directory");
-          return;
-      }
 
-      File file = root.openNextFile();
-      while(file){
-          if(file.isDirectory()){
-              Serial.print("  DIR : ");
-              Serial.println(file.name());
-              if(levels){
-                  listDir(fs, file.name(), levels -1);
-              }
-          } else {
-              Serial.print("  FILE: ");
-              Serial.print(file.name());
-              Serial.print("\tSIZE: ");
-              Serial.println(file.size());
-          }
-          file = root.openNextFile();
-      }*/
 }
 
 bool writeFile(fs::FS &fs, const char *path, const char *message, const int len)
@@ -304,4 +287,4 @@ String readAllFile(fs::FS &fs, const char *path)
     file.close();
 
     return content;
-}
+}*/
