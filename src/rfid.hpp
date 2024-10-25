@@ -13,8 +13,9 @@
 
 class RfId
 {
-
-    uint32_t loopCnt = 0;
+    String lastCode;
+    uint8_t uid[8];
+    char buffer[5];
     bool errorFlag = false;
     int jumpCheck;
     unsigned long lastCheck;
@@ -23,7 +24,7 @@ class RfId
 
 public:
     RfId();
-    void checkCard();
+    String checkCard();
     void setup();
 };
 

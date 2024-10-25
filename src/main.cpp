@@ -44,18 +44,18 @@ void setup()
 
   ledManager.setup();
 
-  // if (!SDSetup())
-  // {
-  //   Serial.println("Unable to read SD");
-  //   delay(3000);
-  //   ESP.restart();
-  // }
-  // else
-  // {
-  //   // listDir(SD, "/", 0);
-  // }
+  if (!SDSetup())
+    // {
+    //   Serial.println("Unable to read SD");
+    //   delay(3000);
+    //   ESP.restart();
+    // }
+    // else
+    // {
+    //   // listDir(SD, "/", 0);
+    // }
 
-  Serial.println("Setup player");
+    Serial.println("Setup player");
   setupPlayer();
   Serial.println("Setup rfid");
   rfid.setup();
@@ -97,7 +97,7 @@ void loop()
   if (card == "Same")
   {
     // don't do anything
-    // Serial.println("Samecard do nothing");
+    Serial.println("Samecard do nothing");
   }
   else if (card == "No")
   {
