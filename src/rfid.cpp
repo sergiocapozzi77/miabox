@@ -3,23 +3,21 @@
 
 RfId rfid;
 
-RfId::RfId() : nfc(PN5180_NSS, PN5180_BUSY, PN5180_RST)
+RfId::RfId() : nfcISO15693(PN5180_NSS, PN5180_BUSY, PN5180_RST), nfcISO14443(PN5180_NSS, PN5180_BUSY, PN5180_RST)
 {
 }
 
 void RfId::setup()
 {
-    Serial.println(F("PN5180 ISO15693 Demo Sketch"));
-
-    nfc.begin();
+    nfcISO15693.begin();
     Serial.println(F("----------------------------------"));
     Serial.println(F("PN5180 Hard-Reset..."));
-    nfc.reset();
+    nfcISO15693.reset();
 
     Serial.println(F("----------------------------------"));
     Serial.println(F("Reading product version..."));
     uint8_t productVersion[2];
-    nfc.readEEprom(PRODUCT_VERSION, productVersion, sizeof(productVersion));
+    nfcISO15693.readEEprom(PRODUCT_VERSION, productVersion, sizeof(productVersion));
     Serial.print(F("Product version="));
     Serial.print(productVersion[1]);
     Serial.print(".");
@@ -36,7 +34,7 @@ void RfId::setup()
     Serial.println(F("----------------------------------"));
     Serial.println(F("Reading firmware version..."));
     uint8_t firmwareVersion[2];
-    nfc.readEEprom(FIRMWARE_VERSION, firmwareVersion, sizeof(firmwareVersion));
+    nfcISO15693.readEEprom(FIRMWARE_VERSION, firmwareVersion, sizeof(firmwareVersion));
     Serial.print(F("Firmware version="));
     Serial.print(firmwareVersion[1]);
     Serial.print(".");
@@ -45,7 +43,7 @@ void RfId::setup()
     Serial.println(F("----------------------------------"));
     Serial.println(F("Reading EEPROM version..."));
     uint8_t eepromVersion[2];
-    nfc.readEEprom(EEPROM_VERSION, eepromVersion, sizeof(eepromVersion));
+    nfcISO15693.readEEprom(EEPROM_VERSION, eepromVersion, sizeof(eepromVersion));
     Serial.print(F("EEPROM version="));
     Serial.print(eepromVersion[1]);
     Serial.print(".");
@@ -69,24 +67,33 @@ void RfId::setup()
 
     Serial.println(F("----------------------------------"));
     Serial.println(F("Enable RF field..."));
-    nfc.setupRF();
+    nfcISO15693.setupRF();
+
+    lastCheckISO15693 = 0;
 }
 
-String RfId::checkCard()
+String RfId::checkISO15693Card()
 {
+    if (millis() - lastCheckISO15693 < 1000)
+    {
+        return "Same";
+    }
+
+    lastCheckISO15693 = millis();
+
     bool readOk = false;
-    ISO15693ErrorCode rc = nfc.getInventory(uid);
+    ISO15693ErrorCode rc = nfcISO15693.getInventory(uid);
     if (ISO15693_EC_OK != rc)
     {
         if (rc == EC_NO_CARD)
         {
-            Serial.println(F("No card"));
+            // Serial.println(F("No card"));
             return "No";
         }
 
         Serial.println(F("Inventory failed: Trying to remove lock"));
         uint8_t password[] = {0x5B, 0x6E, 0xFD, 0x7F};
-        ISO15693ErrorCode myrc = nfc.disablePrivacyMode(password);
+        ISO15693ErrorCode myrc = nfcISO15693.disablePrivacyMode(password);
         if (ISO15693_EC_OK == myrc)
         {
             Serial.println("disabling privacy-mode successful");
@@ -105,19 +112,21 @@ String RfId::checkCard()
 
     if (readOk)
     {
-        String code;
+        code = "";
         Serial.print(F("Inventory successful, UID="));
         for (int i = 0; i < 8; i++)
         {
             code += itoa(uid[7 - i], buffer, HEX);
         }
-        Serial.println(code);
-        if (lastCode == code)
-        {
-            return "Same";
-        }
 
-        lastCode = code;
+        code.toUpperCase();
+        Serial.println(code);
+        // if (lastCode == code)
+        // {
+        //     return "Same";
+        // }
+
+        // lastCode = code;
         return code;
     }
 

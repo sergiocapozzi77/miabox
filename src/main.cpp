@@ -93,14 +93,15 @@ void loop()
   buttonVolUp.eval();
   buttonVolDown.eval();
 
-  String card = rfid.checkCard();
+  String card = rfid.checkISO15693Card();
   if (card == "Same")
   {
     // don't do anything
-    Serial.println("Samecard do nothing");
+    // Serial.println("Samecard do nothing");
   }
   else if (card == "No")
   {
+    currentCard = "";
     if (playlist.isPlaying)
     {
       Serial.println("Current card is No, stopping");
@@ -111,19 +112,19 @@ void loop()
   {
     if (card != currentCard)
     {
-      Serial.printf("New card found: is %s\n", card);
+      Serial.println("New card found: is " + card);
       playlist.resetPosition();
+
+      currentCard = card;
+      playlist.loadPlaylist(card);
+      playlist.playNext();
       // createFolder(SD, ("/" + card).c_str());
       // Serial.printf("Created folder %s\n", "/" + card);
       // listDir(SD, ("/" + card).c_str(), 0);
     }
     else
     {
-      Serial.printf("Same card found: is %s\n", card);
+      Serial.printf("Same card found: is %s\n", card.c_str());
     }
-
-    currentCard = card;
-    playlist.loadPlaylist(card);
-    playlist.playNext();
   }
 }
