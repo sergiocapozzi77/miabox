@@ -81,36 +81,37 @@ String RfId::checkISO15693Card()
 
     lastCheckISO15693 = millis();
 
-    bool readOk = false;
+    nfcISO14443.reset();
+    nfcISO14443.setupRF();
+    if (nfcISO14443.isCardPresent())
+    {
+        int8_t uidLength = nfcISO14443.readCardSerial(uid);
+        if (uidLength > 0)
+        {
+            Serial.print(F("ISO-14443 card found, UID="));
+            for (int i = 0; i < uidLength; i++)
+            {
+                Serial.print(uid[i] < 0x10 ? " 0" : " ");
+                Serial.print(uid[i], HEX);
+            }
+            Serial.println();
+            Serial.println(F("----------------------------------"));
+            delay(1000);
+            return;
+        }
+    }
+
+    nfcISO15693.reset();
+    nfcISO15693.setupRF();
+    uint8_t password[] = {0x5B, 0x6E, 0xFD, 0x7F};
+    ISO15693ErrorCode myrc = nfcISO15693.disablePrivacyMode(password);
+    if (ISO15693_EC_OK == myrc)
+    {
+        Serial.println("disabling privacy-mode successful");
+    }
+
     ISO15693ErrorCode rc = nfcISO15693.getInventory(uid);
-    if (ISO15693_EC_OK != rc)
-    {
-        if (rc == EC_NO_CARD)
-        {
-            // Serial.println(F("No card"));
-            return "No";
-        }
-
-        Serial.println(F("Inventory failed: Trying to remove lock"));
-        uint8_t password[] = {0x5B, 0x6E, 0xFD, 0x7F};
-        ISO15693ErrorCode myrc = nfcISO15693.disablePrivacyMode(password);
-        if (ISO15693_EC_OK == myrc)
-        {
-            Serial.println("disabling privacy-mode successful");
-            readOk = true;
-        }
-        else
-        {
-            Serial.println("disabling privacy-mode error");
-            return "No";
-        }
-    }
-    else
-    {
-        readOk = true;
-    }
-
-    if (readOk)
+    if (ISO15693_EC_OK == rc)
     {
         code = "";
         Serial.print(F("Inventory successful, UID="));
@@ -121,12 +122,6 @@ String RfId::checkISO15693Card()
 
         code.toUpperCase();
         Serial.println(code);
-        // if (lastCode == code)
-        // {
-        //     return "Same";
-        // }
-
-        // lastCode = code;
         return code;
     }
 
