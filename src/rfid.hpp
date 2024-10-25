@@ -7,25 +7,26 @@
 #include <PN5180.h>
 #include <PN5180ISO15693.h>
 
-#define RF_SS_PIN 7
-#define RF_RST_PIN 15
-#define RF_BUSY_PIN 8
-
-#define RF_SCK 18
-#define RF_MISO 16
-#define RF_MOSI 17
-#define RF_SS 7
+#define PN5180_NSS 7
+#define PN5180_BUSY 8
+#define PN5180_RST 15
 
 class RfId
 {
+
+    uint32_t loopCnt = 0;
+    bool errorFlag = false;
     int jumpCheck;
     unsigned long lastCheck;
     PN5180ISO15693 nfc;
+    void showIRQStatus(uint32_t irqStatus);
 
 public:
     RfId();
-    String checkCard();
+    void checkCard();
     void setup();
 };
+
+extern RfId rfid;
 
 #endif

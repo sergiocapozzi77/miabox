@@ -24,8 +24,6 @@ ButtonManager buttonVolDown(BUTTON_VOLUMEDOWN_PIN, "Volume Down");
 boolean pressed = false;
 String currentCard = "";
 
-RfId rfid;
-
 void playlistStop();
 void playlistNext();
 
@@ -54,7 +52,7 @@ void setup()
   // }
   // else
   // {
-  //   listDir(SD, "/", 0);
+  //   // listDir(SD, "/", 0);
   // }
 
   Serial.println("Setup player");
