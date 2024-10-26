@@ -5,7 +5,7 @@
 
 #define MAX_HTTP_RECV_BUFFER 2048
 
-String fetchData(const char *link)
+String fetchData(const char *link, bool ignoreReturn)
 {
     String ret;
     WiFiClient *client = new WiFiClient;
@@ -32,7 +32,10 @@ String fetchData(const char *link)
                     // file found at server
                     if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY)
                     {
-                        ret = https.getString();
+                        if (!ignoreReturn)
+                        {
+                            ret = https.getString();
+                        }
                     }
                     else
                     {

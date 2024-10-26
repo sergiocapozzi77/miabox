@@ -82,7 +82,7 @@ bool loopPlayer()
 // optional
 void audio_info(const char *info)
 {
-    Serial.printf("%d: info        ", millis());
+    Serial.printf("%lu: info        ", millis());
     Serial.println(info);
     if (String(info).startsWith("BitRate"))
     {
@@ -91,7 +91,7 @@ void audio_info(const char *info)
 }
 void audio_id3data(const char *info)
 { // id3 metadata
-    Serial.printf("%d: id3data     ", millis());
+    Serial.printf("%lu: id3data     ", millis());
     Serial.println(info);
 }
 void audio_eof_mp3(const char *info)

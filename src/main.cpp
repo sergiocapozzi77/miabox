@@ -44,18 +44,18 @@ void setup()
 
   ledManager.setup();
 
-  if (!SDSetup())
-    // {
-    //   Serial.println("Unable to read SD");
-    //   delay(3000);
-    //   ESP.restart();
-    // }
-    // else
-    // {
-    //   // listDir(SD, "/", 0);
-    // }
+  // if (!SDSetup())
+  //  {
+  //    Serial.println("Unable to read SD");
+  //    delay(3000);
+  //    ESP.restart();
+  //  }
+  //  else
+  //  {
+  //    // listDir(SD, "/", 0);
+  //  }
 
-    Serial.println("Setup player");
+  Serial.println("Setup player");
   setupPlayer();
   Serial.println("Setup rfid");
   rfid.setup();
@@ -93,7 +93,7 @@ void loop()
   buttonVolUp.eval();
   buttonVolDown.eval();
 
-  String card = rfid.checkISO15693Card();
+  String card = rfid.getCode();
   if (card == "Same")
   {
     // don't do anything
@@ -116,15 +116,17 @@ void loop()
       playlist.resetPosition();
 
       currentCard = card;
-      playlist.loadPlaylist(card);
-      playlist.playNext();
+      if (playlist.loadPlaylist(card))
+      {
+        playlist.playNext();
+      }
       // createFolder(SD, ("/" + card).c_str());
       // Serial.printf("Created folder %s\n", "/" + card);
       // listDir(SD, ("/" + card).c_str(), 0);
     }
     else
     {
-      Serial.printf("Same card found: is %s\n", card.c_str());
+      // Serial.printf("Same card found: is %s\n", card.c_str());
     }
   }
 }

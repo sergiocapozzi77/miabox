@@ -9,7 +9,7 @@ struct DownloadParams
     String filename;
 };
 
-String fetchData(const char *link);
+String fetchData(const char *link, bool ignoreReturn);
 void downloadFileTask(void *parameter);
 
 #endif

@@ -7,7 +7,7 @@
 
 Playlist playlist;
 
-// #define REST_API "http://192.168.0.141:4040/rest/%s?u=admin&p=admin&v=1.12.0&c=myapp&f=json%s"
+// #define REST_API "http://192.168.0.141:4040/rest/%s?u=admin&p=admin&v=1.16.1&c=myapp&f=json%s"
 
 Playlist::Playlist()
 {
@@ -21,7 +21,7 @@ void Playlist::getPlaylists()
 
     char url[100];
     sprintf(url, REST_API, "getPlaylists", "");
-    String playlists = fetchData(url);
+    String playlists = fetchData(url, false);
 
     // Allocate the JSON document
     JsonDocument doc;
@@ -111,28 +111,41 @@ void Playlist::play()
     // }
 }
 
+bool Playlist::createPlaylist(String cardCode)
+{
+    ledManager.bluOn();
+
+    char url[150];
+    sprintf(url, REST_API, "createPlaylist", String("&name=" + cardCode).c_str());
+    String playlists = fetchData(url, true);
+    ledManager.bluOff();
+    return true;
+}
+
 bool Playlist::loadPlaylist(String cardCode)
 {
     std::map<String, String>::iterator playlistElem = playlistsMap.find(cardCode);
     if (playlistElem == playlistsMap.end())
     {
-        Serial.println("Playlist not found");
+        Serial.println("Playlist not found, creating it");
+        createPlaylist(cardCode);
+
         return false;
     }
 
     String playlistId = playlistsMap[cardCode];
 
-    Serial.printf("Downloading playlist %s\n", playlistId);
+    Serial.printf("Downloading playlist %s\n", playlistId.c_str());
     String data = fetchPlaylistContent(playlistId);
     if (data == "")
     {
-        Serial.printf("No data in playlist %s\n", playlistId);
+        Serial.printf("No data in playlist %s\n", playlistId.c_str());
         return false;
     }
 
     // String content = readAllFile(activeFS, indexFileName.c_str());
     // Serial.println(content);
-    Serial.printf("Reading playlist data for %s\n", cardCode);
+    Serial.printf("Reading playlist data for %s\n", cardCode.c_str());
     readPlayList(data);
 
     return true;
@@ -196,5 +209,5 @@ String Playlist::fetchPlaylistContent(String name)
     char url[100];
     sprintf(url, REST_API, "getPlaylist", (String("&id=") + name).c_str());
 
-    return fetchData(url);
+    return fetchData(url, false);
 }

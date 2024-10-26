@@ -69,61 +69,105 @@ void RfId::setup()
     Serial.println(F("Enable RF field..."));
     nfcISO15693.setupRF();
 
-    lastCheckISO15693 = 0;
+    lastCheck = 0;
+
+    xTaskCreatePinnedToCore(
+        checkCards,            // Function to implement the task
+        "checkCards",          // Name of the task
+        2048,                  // Stack size in words
+        this,                  // Task input parameter
+        2 | portPRIVILEGE_BIT, // Priority of the task
+        &rfidTaskHandle,       // Task handle.
+        0);                    // Core where the task should run
 }
 
-String RfId::checkISO15693Card()
+void RfId::setCode(String newCode)
 {
-    if (millis() - lastCheckISO15693 < 1000)
+    if (newCode != previousCode)
     {
-        return "Same";
+        m.lock();
+        code = newCode;
+        m.unlock();
+        previousCode = code;
     }
+}
 
-    lastCheckISO15693 = millis();
+String RfId::getCode()
+{
+    String ret;
+    m.lock();
+    ret = String(code);
+    m.unlock();
 
-    nfcISO14443.reset();
-    nfcISO14443.setupRF();
-    if (nfcISO14443.isCardPresent())
+    return ret;
+}
+
+void RfId::checkCards(void *pvParameters)
+{
+    RfId *_this = (RfId *)pvParameters;
+
+    const TickType_t xDelay = 500 / portTICK_PERIOD_MS;
+    for (;;)
     {
-        int8_t uidLength = nfcISO14443.readCardSerial(uid);
-        if (uidLength > 0)
+        vTaskDelay(xDelay);
+        // if (millis() - _this->lastCheck < 1000)
+        // {
+        //     _this->code = "Same";
+        // }
+
+        _this->lastCheck = millis();
+
+        _this->nfcISO14443.reset();
+        _this->nfcISO14443.setupRF();
+        if (_this->nfcISO14443.isCardPresent())
         {
-            Serial.print(F("ISO-14443 card found, UID="));
-            for (int i = 0; i < uidLength; i++)
+            Serial.println("isCardPresent");
+            int8_t uidLength = _this->nfcISO14443.readCardSerial(_this->uid);
+            if (uidLength > 0)
             {
-                Serial.print(uid[i] < 0x10 ? " 0" : " ");
-                Serial.print(uid[i], HEX);
+                String tempCode = "";
+                for (byte i = 0; i < uidLength; i++)
+                {
+                    tempCode += _this->uid[i] < 0x10 ? "0" : "";
+                    tempCode += itoa(_this->uid[i], _this->buffer, HEX);
+                }
+
+                tempCode.toUpperCase();
+                _this->setCode(tempCode);
+
+                continue;
             }
-            Serial.println();
-            Serial.println(F("----------------------------------"));
-            delay(1000);
-            return;
+            else
+            {
+                Serial.println("empty uid");
+            }
         }
-    }
 
-    nfcISO15693.reset();
-    nfcISO15693.setupRF();
-    uint8_t password[] = {0x5B, 0x6E, 0xFD, 0x7F};
-    ISO15693ErrorCode myrc = nfcISO15693.disablePrivacyMode(password);
-    if (ISO15693_EC_OK == myrc)
-    {
-        Serial.println("disabling privacy-mode successful");
-    }
-
-    ISO15693ErrorCode rc = nfcISO15693.getInventory(uid);
-    if (ISO15693_EC_OK == rc)
-    {
-        code = "";
-        Serial.print(F("Inventory successful, UID="));
-        for (int i = 0; i < 8; i++)
+        _this->nfcISO15693.reset();
+        _this->nfcISO15693.setupRF();
+        uint8_t password[] = {0x5B, 0x6E, 0xFD, 0x7F};
+        ISO15693ErrorCode myrc = _this->nfcISO15693.disablePrivacyMode(password);
+        if (ISO15693_EC_OK == myrc)
         {
-            code += itoa(uid[7 - i], buffer, HEX);
+            // Serial.println("disabling privacy-mode successful");
         }
 
-        code.toUpperCase();
-        Serial.println(code);
-        return code;
-    }
+        ISO15693ErrorCode rc = _this->nfcISO15693.getInventory(_this->uid);
+        if (ISO15693_EC_OK == rc)
+        {
+            String tempcode = "";
+            for (int i = 0; i < 8; i++)
+            {
+                tempcode += itoa(_this->uid[7 - i], _this->buffer, HEX);
+            }
 
-    return "No";
+            tempcode.toUpperCase();
+
+            _this->setCode(tempcode);
+
+            continue;
+        }
+
+        _this->setCode("No");
+    }
 }

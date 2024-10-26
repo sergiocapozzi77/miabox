@@ -16,6 +16,7 @@ class Playlist
 
     String fetchPlaylistContent(String name);
     bool readPlayList(String content);
+    bool createPlaylist(String cardCode);
 
 public:
     bool isPlaying;
