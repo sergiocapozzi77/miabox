@@ -58,7 +58,7 @@ void setup()
   Serial.println("Setup player");
   setupPlayer();
   Serial.println("Setup rfid");
-  rfid.setup();
+  // rfid.setup();
 
   // Initialize the GPIO pin as an input
   pinMode(BUTTON_NEXTSONG_PIN, INPUT_PULLUP);
@@ -72,6 +72,9 @@ void setup()
   buttonVolUp.attachAction(volumeUp);
 
   playlist.getPlaylists();
+
+  playlist.loadPlaylist("7304CC2C");
+  playlist.playNext();
 }
 
 void playlistStop()
@@ -88,45 +91,45 @@ void loop()
 {
   playlist.loopPlaylist();
 
-  buttonStop.eval();
-  buttonNext.eval();
-  buttonVolUp.eval();
-  buttonVolDown.eval();
+  // buttonStop.eval();
+  // buttonNext.eval();
+  // buttonVolUp.eval();
+  // buttonVolDown.eval();
 
-  String card = rfid.getCode();
-  if (card == "Same")
-  {
-    // don't do anything
-    // Serial.println("Samecard do nothing");
-  }
-  else if (card == "No")
-  {
-    currentCard = "";
-    if (playlist.isPlaying)
-    {
-      Serial.println("Current card is No, stopping");
-      playlist.stop();
-    }
-  }
-  else
-  {
-    if (card != currentCard)
-    {
-      Serial.println("New card found: is " + card);
-      playlist.resetPosition();
+  // String card = rfid.getCode();
+  // if (card == "Same")
+  // {
+  //   // don't do anything
+  //   // Serial.println("Samecard do nothing");
+  // }
+  // else if (card == "No")
+  // {
+  //   currentCard = "";
+  //   if (playlist.isPlaying)
+  //   {
+  //     Serial.println("Current card is No, stopping");
+  //     playlist.stop();
+  //   }
+  // }
+  // else
+  // {
+  //   if (card != currentCard)
+  //   {
+  //     Serial.println("New card found: is " + card);
+  //     playlist.resetPosition();
 
-      currentCard = card;
-      if (playlist.loadPlaylist(card))
-      {
-        playlist.playNext();
-      }
-      // createFolder(SD, ("/" + card).c_str());
-      // Serial.printf("Created folder %s\n", "/" + card);
-      // listDir(SD, ("/" + card).c_str(), 0);
-    }
-    else
-    {
-      // Serial.printf("Same card found: is %s\n", card.c_str());
-    }
-  }
+  //     currentCard = card;
+  //     if (playlist.loadPlaylist(card))
+  //     {
+  //       playlist.playNext();
+  //     }
+  //     // createFolder(SD, ("/" + card).c_str());
+  //     // Serial.printf("Created folder %s\n", "/" + card);
+  //     // listDir(SD, ("/" + card).c_str(), 0);
+  //   }
+  //   else
+  //   {
+  //     // Serial.printf("Same card found: is %s\n", card.c_str());
+  //   }
+  // }
 }
