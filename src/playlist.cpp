@@ -101,7 +101,7 @@ void Playlist::play()
 
     Serial.println("Play next");
     char url[200];
-    sprintf(url, REST_API, "stream", (String("&format=mp3&id=") + songs.at(currentSong)).c_str());
+    sprintf(url, REST_API, "stream", (String("&format=raw&id=") + songs.at(currentSong)).c_str());
     Serial.printf("Playing %s\n", url);
     playStream(url);
     // if (lastPosition > 0)
