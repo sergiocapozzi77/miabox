@@ -72,6 +72,9 @@ void setup()
   buttonVolUp.attachAction(volumeUp);
 
   playlist.getPlaylists();
+
+  playlist.loadPlaylist("7304CC2C");
+  playlist.playNext();
 }
 
 void playlistStop()
