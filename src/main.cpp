@@ -73,8 +73,8 @@ void setup()
 
   playlist.getPlaylists();
 
-  playlist.loadPlaylist("7304CC2C");
-  playlist.playNext();
+  // playlist.loadPlaylist("7304CC2C");
+  // playlist.playNext();
 }
 
 void playlistStop()

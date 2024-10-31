@@ -156,7 +156,7 @@ void RfId::checkCards(void *pvParameters)
         if (ISO15693_EC_OK == rc)
         {
             String tempcode = "";
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 7; i++)
             {
                 tempcode += itoa(_this->uid[7 - i], _this->buffer, HEX);
             }
@@ -168,6 +168,7 @@ void RfId::checkCards(void *pvParameters)
             continue;
         }
 
+        Serial.printf("Card error %d\n", rc);
         _this->setCode("No");
     }
 }
