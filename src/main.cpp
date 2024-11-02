@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "WiFiMulti.h"
+#include <WiFiManager.h>
 #include "player.h"
 #include "playlist.hpp"
 #include "esp_wifi.h"
@@ -27,20 +27,47 @@ String currentCard = "";
 void playlistStop();
 void playlistNext();
 
+void setupWifi()
+{
+  WiFi.mode(WIFI_AP_STA); // explicitly set mode, esp defaults to STA+AP
+
+  // WiFiManager, Local intialization. Once its business is done, there is no need to keep it around
+  WiFiManager wm;
+
+  // reset settings - wipe credentials for testing
+  // wm.resetSettings();
+
+  bool res;
+  // res = wm.autoConnect(); // auto generated AP name from chipid
+  // res = wm.autoConnect("AutoConnectAP"); // anonymous ap
+  res = wm.autoConnect("miabox"); // password protected ap
+
+  if (!res)
+  {
+    Serial.println("Failed to connect");
+    ESP.restart();
+  }
+  else
+  {
+    // if you get here you have connected to the WiFi
+    Serial.println("connected...yeey :)");
+  }
+}
+
 void setup()
 {
   Serial.begin(115200);
   esp_wifi_set_ps(WIFI_PS_NONE);
-  WiFi.mode(WIFI_STA);
+  // WiFi.mode(WIFI_STA);
+  // WiFi.begin(ssid, password);
 
-  WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("wifi connected");
+  // while (WiFi.status() != WL_CONNECTED)
+  // {
+  //   delay(500);
+  //   Serial.print(".");
+  // }
+  // Serial.println("wifi connected");
+  setupWifi();
 
   ledManager.setup();
 

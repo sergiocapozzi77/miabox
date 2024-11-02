@@ -168,7 +168,10 @@ void RfId::checkCards(void *pvParameters)
             continue;
         }
 
-        Serial.printf("Card error %d\n", rc);
+        if (rc != EC_NO_CARD)
+        {
+            Serial.printf("Card error %d\n", rc);
+        }
         _this->setCode("No");
     }
 }

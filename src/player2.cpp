@@ -14,7 +14,7 @@ void setupPlayer()
     //  randomSeed(2343);
     audio2.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
     audio2.setVolume(21);
-
+    audio2.forceMono(true);
     // refreshDirContent2();
 }
 
