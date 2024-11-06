@@ -28,6 +28,7 @@ class RfId
     PN5180ISO14443 nfcISO14443;
     void showIRQStatus(uint32_t irqStatus);
     void setCode(String code);
+    ISO15693ErrorCode getInventoryRetry(int retryNum);
 
 public:
     RfId();

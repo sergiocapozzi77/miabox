@@ -117,31 +117,31 @@ void RfId::checkCards(void *pvParameters)
 
         _this->lastCheck = millis();
 
-        _this->nfcISO14443.reset();
-        _this->nfcISO14443.setupRF();
-        if (_this->nfcISO14443.isCardPresent())
-        {
-            Serial.println("isCardPresent");
-            int8_t uidLength = _this->nfcISO14443.readCardSerial(_this->uid);
-            if (uidLength > 0)
-            {
-                String tempCode = "";
-                for (byte i = 0; i < uidLength; i++)
-                {
-                    tempCode += _this->uid[i] < 0x10 ? "0" : "";
-                    tempCode += itoa(_this->uid[i], _this->buffer, HEX);
-                }
+        // _this->nfcISO14443.reset();
+        // _this->nfcISO14443.setupRF();
+        // if (_this->nfcISO14443.isCardPresent())
+        // {
+        //     Serial.println("isCardPresent");
+        //     int8_t uidLength = _this->nfcISO14443.readCardSerial(_this->uid);
+        //     if (uidLength > 0)
+        //     {
+        //         String tempCode = "";
+        //         for (byte i = 0; i < uidLength; i++)
+        //         {
+        //             tempCode += _this->uid[i] < 0x10 ? "0" : "";
+        //             tempCode += itoa(_this->uid[i], _this->buffer, HEX);
+        //         }
 
-                tempCode.toUpperCase();
-                _this->setCode(tempCode);
+        //         tempCode.toUpperCase();
+        //         _this->setCode(tempCode);
 
-                continue;
-            }
-            else
-            {
-                Serial.println("empty uid");
-            }
-        }
+        //         continue;
+        //     }
+        //     else
+        //     {
+        //         Serial.println("empty uid");
+        //     }
+        // }
 
         _this->nfcISO15693.reset();
         _this->nfcISO15693.setupRF();
@@ -152,7 +152,7 @@ void RfId::checkCards(void *pvParameters)
             // Serial.println("disabling privacy-mode successful");
         }
 
-        ISO15693ErrorCode rc = _this->nfcISO15693.getInventory(_this->uid);
+        ISO15693ErrorCode rc = _this->getInventoryRetry(3);
         if (ISO15693_EC_OK == rc)
         {
             String tempcode = "";
@@ -174,4 +174,23 @@ void RfId::checkCards(void *pvParameters)
         }
         _this->setCode("No");
     }
+}
+
+ISO15693ErrorCode RfId::getInventoryRetry(int retryNum)
+{
+    ISO15693ErrorCode rc;
+    for (int i = 0; i < retryNum; i++)
+    {
+        rc = this->nfcISO15693.getInventory(this->uid);
+        if (rc == ISO15693_EC_OK)
+        {
+            return rc;
+        }
+
+        Serial.printf("No card found %d\n", rc);
+        nfcISO15693.reset();
+        nfcISO15693.setupRF();
+    }
+
+    return rc;
 }

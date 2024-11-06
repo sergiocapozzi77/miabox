@@ -82,8 +82,8 @@ bool loopPlayer()
 // optional
 void audio_info(const char *info)
 {
-    Serial.printf("%lu: info        ", millis());
-    Serial.println(info);
+    // Serial.printf("%lu: info        ", millis());
+    // Serial.println(info);
     if (String(info).startsWith("BitRate"))
     {
         ledManager.bluOff();
@@ -91,42 +91,42 @@ void audio_info(const char *info)
 }
 void audio_id3data(const char *info)
 { // id3 metadata
-    Serial.printf("%lu: id3data     ", millis());
-    Serial.println(info);
+  // Serial.printf("%lu: id3data     ", millis());
+  // Serial.println(info);
 }
 void audio_eof_mp3(const char *info)
 { // end of file
-    Serial.print("eof_mp3     ");
-    Serial.println(info);
+  // Serial.print("eof_mp3     ");
+  // Serial.println(info);
 }
 void audio_showstation(const char *info)
 {
-    Serial.print("station     ");
-    Serial.println(info);
+    // Serial.print("station     ");
+    // Serial.println(info);
 }
 void audio_showstreamtitle(const char *info)
 {
-    Serial.print("streamtitle ");
-    Serial.println(info);
+    // Serial.print("streamtitle ");
+    // Serial.println(info);
 }
 void audio_bitrate(const char *info)
 {
     ledManager.bluOff();
-    Serial.print("bitrate     ");
-    Serial.println(info);
+    // Serial.print("bitrate     ");
+    // Serial.println(info);
 }
 void audio_commercial(const char *info)
 { // duration in sec
-    Serial.print("commercial  ");
-    Serial.println(info);
+  // Serial.print("commercial  ");
+  // Serial.println(info);
 }
 void audio_icyurl(const char *info)
 { // homepage
-    Serial.print("icyurl      ");
-    Serial.println(info);
+  // Serial.print("icyurl      ");
+  // Serial.println(info);
 }
 void audio_lasthost(const char *info)
 { // stream URL played
-    Serial.print("lasthost    ");
-    Serial.println(info);
+  // Serial.print("lasthost    ");
+  // Serial.println(info);
 }
