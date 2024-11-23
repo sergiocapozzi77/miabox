@@ -69,7 +69,6 @@ String fetchData(const char *link, bool ignoreReturn)
         return "";
     }
 
-    Serial.println("Returning string");
     return ret;
 }
 

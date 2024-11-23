@@ -162,6 +162,11 @@ void RfId::checkCards(void *pvParameters)
             }
 
             tempcode.toUpperCase();
+            // if (_this->code != "No" && _this->previousCode != _this->code)
+            // {
+            //     Serial.printf("Not possible to read two codes differently %s\n", _this->code);
+            //     continue;
+            // }
 
             _this->setCode(tempcode);
 
@@ -181,6 +186,7 @@ ISO15693ErrorCode RfId::getInventoryRetry(int retryNum)
     ISO15693ErrorCode rc;
     for (int i = 0; i < retryNum; i++)
     {
+        vTaskDelay(50 / portTICK_PERIOD_MS);
         rc = this->nfcISO15693.getInventory(this->uid);
         if (rc == ISO15693_EC_OK)
         {

@@ -23,6 +23,7 @@ ButtonManager buttonVolDown(BUTTON_VOLUMEDOWN_PIN, "Volume Down");
 
 boolean pressed = false;
 String currentCard = "";
+String previousCard = "";
 
 void playlistStop();
 void playlistNext();
@@ -142,13 +143,27 @@ void loop()
   {
     if (card != currentCard)
     {
-      Serial.println("New card found: is " + card);
-      playlist.resetPosition();
+      if (card != "No" && currentCard != "No" && currentCard != "")
+      {
+        Serial.printf("Suspicious new card %s current card %s\n", card, currentCard);
+        return;
+      }
+
+      Serial.println("New card found: " + card);
+      Serial.println("CurrentCard was: " + currentCard);
+      if (card != previousCard)
+      {
+        playlist.resetPosition();
+      }
+      else
+      {
+      }
 
       currentCard = card;
+      previousCard = card;
       if (playlist.loadPlaylist(card))
       {
-        playlist.playNext();
+        playlist.play();
       }
       // createFolder(SD, ("/" + card).c_str());
       // Serial.printf("Created folder %s\n", "/" + card);

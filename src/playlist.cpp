@@ -81,8 +81,8 @@ void Playlist::resetPosition()
 
 void Playlist::playNext()
 {
-    play();
     currentSong++;
+    play();
 }
 
 void Playlist::play()
